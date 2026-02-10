@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚍 Travel Fleet Management
 
 A comprehensive **offline-first** Flutter mobile app for managing a travel fleet — including cars, trips, billing, driver payroll, and leave management.
@@ -81,3 +82,6 @@ flutter build apk --release
 ```bash
 flutter build ios --release
 ```
+=======
+# Travel_fleet
+>>>>>>> 879a853110c4bbba03fefb55f453e0bb02643538
