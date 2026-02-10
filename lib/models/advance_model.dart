@@ -1,7 +1,7 @@
 /// Represents an advance payment against a trip.
 class AdvanceModel {
-  final int? id;
-  final int tripId;
+  final String? id;
+  final String tripId;
   final double amount;
   final String advanceType; // booking | fuel
   final String enteredBy; // role of the person who entered
@@ -26,8 +26,8 @@ class AdvanceModel {
   };
 
   factory AdvanceModel.fromMap(Map<String, dynamic> map) => AdvanceModel(
-    id: map['id'] as int?,
-    tripId: map['tripId'] as int,
+    id: map['id']?.toString(),
+    tripId: map['tripId'].toString(),
     amount: (map['amount'] as num).toDouble(),
     advanceType: map['advanceType'] as String,
     enteredBy: map['enteredBy'] as String,

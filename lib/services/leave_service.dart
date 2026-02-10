@@ -1,29 +1,37 @@
-import '../database/db_helper.dart';
 import '../models/leave_model.dart';
+import 'api_client.dart';
 
-/// Service for driver leave management.
+/// Service for driver leave management via REST API.
 class LeaveService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
 
-  Future<int> applyLeave(LeaveModel leave) =>
-      _db.insert('leaves', leave.toMap());
+  Future<LeaveModel> applyLeave(LeaveModel leave) async {
+    final res = await _api.post('/leaves', leave.toMap());
+    return LeaveModel.fromMap(res as Map<String, dynamic>);
+  }
 
-  Future<List<LeaveModel>> getLeavesForDriver(int driverId) async {
-    final rows = await _db.queryWhere('leaves', 'driverId = ?', [driverId]);
-    return rows.map(LeaveModel.fromMap).toList();
+  Future<List<LeaveModel>> getLeavesForDriver(String driverId) async {
+    final res = await _api.get('/leaves?driverId=$driverId') as List;
+    return res
+        .map((e) => LeaveModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<LeaveModel>> getAllLeaves() async {
-    final rows = await _db.queryAll('leaves');
-    return rows.map(LeaveModel.fromMap).toList();
+    final res = await _api.get('/leaves') as List;
+    return res
+        .map((e) => LeaveModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<LeaveModel>> getPendingLeaves() async {
-    final rows = await _db.queryWhere('leaves', 'status = ?', ['pending']);
-    return rows.map(LeaveModel.fromMap).toList();
+    final res = await _api.get('/leaves?status=pending') as List;
+    return res
+        .map((e) => LeaveModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<void> updateLeaveStatus(int leaveId, String status) async {
-    await _db.update('leaves', {'status': status}, 'id = ?', [leaveId]);
+  Future<void> updateLeaveStatus(String leaveId, String status) async {
+    await _api.put('/leaves/$leaveId', {'status': status});
   }
 }

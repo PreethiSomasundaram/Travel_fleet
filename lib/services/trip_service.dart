@@ -1,85 +1,100 @@
-import '../database/db_helper.dart';
 import '../models/trip_model.dart';
 import '../models/advance_model.dart';
+import 'api_client.dart';
 
-/// Service for trip / booking management.
+/// Service for trip / booking management via REST API.
 class TripService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
 
-  Future<int> createTrip(TripModel trip) => _db.insert('trips', trip.toMap());
-
-  Future<int> updateTrip(TripModel trip) =>
-      _db.update('trips', trip.toMap(), 'id = ?', [trip.id]);
-
-  Future<int> deleteTrip(int id) => _db.delete('trips', 'id = ?', [id]);
-
-  Future<List<TripModel>> getAllTrips() async {
-    final rows = await _db.queryAll('trips');
-    return rows.map(TripModel.fromMap).toList();
+  Future<TripModel> createTrip(TripModel trip) async {
+    final res = await _api.post('/trips', trip.toMap());
+    return TripModel.fromMap(res as Map<String, dynamic>);
   }
 
-  Future<TripModel?> getTripById(int id) async {
-    final rows = await _db.queryWhere('trips', 'id = ?', [id]);
-    if (rows.isEmpty) return null;
-    return TripModel.fromMap(rows.first);
+  Future<TripModel> updateTrip(TripModel trip) async {
+    final res = await _api.put('/trips/${trip.id}', trip.toMap());
+    return TripModel.fromMap(res as Map<String, dynamic>);
+  }
+
+  Future<void> deleteTrip(String id) async {
+    await _api.delete('/trips/$id');
+  }
+
+  Future<List<TripModel>> getAllTrips() async {
+    final res = await _api.get('/trips') as List;
+    return res
+        .map((e) => TripModel.fromMap(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<TripModel?> getTripById(String id) async {
+    try {
+      final res = await _api.get('/trips/$id');
+      return TripModel.fromMap(res as Map<String, dynamic>);
+    } on ApiException {
+      return null;
+    }
   }
 
   /// Returns trips assigned to a particular driver.
-  Future<List<TripModel>> getTripsForDriver(int driverId) async {
-    final rows = await _db.queryWhere('trips', 'driverId = ?', [driverId]);
-    return rows.map(TripModel.fromMap).toList();
+  Future<List<TripModel>> getTripsForDriver(String driverId) async {
+    final res = await _api.get('/trips?driverId=$driverId') as List;
+    return res
+        .map((e) => TripModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Start a trip – sets startTime and startingKm.
-  Future<void> startTrip(int tripId, double startingKm) async {
-    await _db.update('trips', {
+  Future<void> startTrip(String tripId, double startingKm) async {
+    await _api.put('/trips/$tripId', {
       'status': 'started',
       'startTime': DateTime.now().toIso8601String(),
       'startingKm': startingKm,
-    }, 'id = ?', [tripId]);
+    });
   }
 
   /// End a trip – sets endTime and endingKm.
-  Future<void> endTrip(int tripId, double endingKm) async {
-    await _db.update('trips', {
+  Future<void> endTrip(String tripId, double endingKm) async {
+    await _api.put('/trips/$tripId', {
       'status': 'ended',
       'endTime': DateTime.now().toIso8601String(),
       'endingKm': endingKm,
-    }, 'id = ?', [tripId]);
+    });
   }
 
   /// Update charges (toll, permit, parking, other).
   Future<void> updateCharges(
-    int tripId, {
+    String tripId, {
     required double toll,
     required double permit,
     required double parking,
     required double otherCharges,
   }) async {
-    await _db.update('trips', {
+    await _api.put('/trips/$tripId', {
       'toll': toll,
       'permit': permit,
       'parking': parking,
       'otherCharges': otherCharges,
-    }, 'id = ?', [tripId]);
+    });
   }
 
   // ── Advance management ────────────────────────────────────────────────────
 
-  Future<int> addAdvance(AdvanceModel advance) =>
-      _db.insert('advances', advance.toMap());
+  Future<AdvanceModel> addAdvance(AdvanceModel advance) async {
+    final res = await _api.post('/advances', advance.toMap());
+    return AdvanceModel.fromMap(res as Map<String, dynamic>);
+  }
 
-  Future<List<AdvanceModel>> getAdvancesForTrip(int tripId) async {
-    final rows = await _db.queryWhere('advances', 'tripId = ?', [tripId]);
-    return rows.map(AdvanceModel.fromMap).toList();
+  Future<List<AdvanceModel>> getAdvancesForTrip(String tripId) async {
+    final res = await _api.get('/advances?tripId=$tripId') as List;
+    return res
+        .map((e) => AdvanceModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Sum of all advances for a trip.
-  Future<double> getTotalAdvance(int tripId) async {
-    final rows = await _db.rawQuery(
-      'SELECT COALESCE(SUM(amount), 0) as total FROM advances WHERE tripId = ?',
-      [tripId],
-    );
-    return (rows.first['total'] as num).toDouble();
+  Future<double> getTotalAdvance(String tripId) async {
+    final advances = await getAdvancesForTrip(tripId);
+    return advances.fold<double>(0.0, (sum, a) => sum + a.amount);
   }
 }

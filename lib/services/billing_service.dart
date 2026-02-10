@@ -1,10 +1,10 @@
-import '../database/db_helper.dart';
 import '../models/bill_model.dart';
 import 'bata_config.dart';
 import 'trip_service.dart';
 import 'car_service.dart';
+import 'api_client.dart';
 
-/// Service for bill generation and retrieval.
+/// Service for bill generation and retrieval via REST API.
 ///
 /// Billing Calculation:
 /// ```
@@ -15,7 +15,7 @@ import 'car_service.dart';
 /// Payable    = Total − Advance
 /// ```
 class BillingService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
   final _bataConfig = BataConfigService();
   final _tripService = TripService();
   final _carService = CarService();
@@ -26,8 +26,8 @@ class BillingService {
   /// [rentUnits] is number of days / hours.
   /// [ratePerUnit] is rate per day / hour.
   /// [ratePerKm] is rate per kilometre.
-  Future<int> generateBill({
-    required int tripId,
+  Future<BillModel> generateBill({
+    required String tripId,
     required String rentType,
     required int rentUnits,
     required double ratePerUnit,
@@ -84,23 +84,29 @@ class BillingService {
       payableAmount: payableAmount,
     );
 
-    return _db.insert('bills', bill.toMap());
+    final res = await _api.post('/bills', bill.toMap());
+    return BillModel.fromMap(res as Map<String, dynamic>);
   }
 
   Future<List<BillModel>> getAllBills() async {
-    final rows = await _db.queryAll('bills');
-    return rows.map(BillModel.fromMap).toList();
+    final res = await _api.get('/bills') as List;
+    return res
+        .map((e) => BillModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<BillModel?> getBillById(int id) async {
-    final rows = await _db.queryWhere('bills', 'id = ?', [id]);
-    if (rows.isEmpty) return null;
-    return BillModel.fromMap(rows.first);
+  Future<BillModel?> getBillById(String id) async {
+    try {
+      final res = await _api.get('/bills/$id');
+      return BillModel.fromMap(res as Map<String, dynamic>);
+    } on ApiException {
+      return null;
+    }
   }
 
-  Future<BillModel?> getBillForTrip(int tripId) async {
-    final rows = await _db.queryWhere('bills', 'tripId = ?', [tripId]);
-    if (rows.isEmpty) return null;
-    return BillModel.fromMap(rows.first);
+  Future<BillModel?> getBillForTrip(String tripId) async {
+    final res = await _api.get('/bills?tripId=$tripId') as List;
+    if (res.isEmpty) return null;
+    return BillModel.fromMap(res.first as Map<String, dynamic>);
   }
 }

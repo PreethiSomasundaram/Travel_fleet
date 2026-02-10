@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'core/constants.dart';
 import 'core/theme.dart';
 import 'core/routes.dart';
+import 'services/api_client.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ApiClient.instance.loadToken();
   runApp(const TravelFleetApp());
 }
 

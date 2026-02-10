@@ -1,25 +1,29 @@
-import '../database/db_helper.dart';
 import '../models/payment_model.dart';
+import 'api_client.dart';
 
-/// Service for tracking payment status per bill.
+/// Service for tracking payment status per bill via REST API.
 class PaymentService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
 
-  Future<int> addPayment(PaymentModel payment) =>
-      _db.insert('payments', payment.toMap());
+  Future<PaymentModel> addPayment(PaymentModel payment) async {
+    final res = await _api.post('/payments', payment.toMap());
+    return PaymentModel.fromMap(res as Map<String, dynamic>);
+  }
 
   Future<List<PaymentModel>> getAllPayments() async {
-    final rows = await _db.queryAll('payments');
-    return rows.map(PaymentModel.fromMap).toList();
+    final res = await _api.get('/payments') as List;
+    return res
+        .map((e) => PaymentModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<PaymentModel?> getPaymentForBill(int billId) async {
-    final rows = await _db.queryWhere('payments', 'billId = ?', [billId]);
-    if (rows.isEmpty) return null;
-    return PaymentModel.fromMap(rows.first);
+  Future<PaymentModel?> getPaymentForBill(String billId) async {
+    final res = await _api.get('/payments?billId=$billId') as List;
+    if (res.isEmpty) return null;
+    return PaymentModel.fromMap(res.first as Map<String, dynamic>);
   }
 
-  Future<void> updatePaymentStatus(int paymentId, String status) async {
-    await _db.update('payments', {'status': status}, 'id = ?', [paymentId]);
+  Future<void> updatePaymentStatus(String paymentId, String status) async {
+    await _api.put('/payments/$paymentId', {'status': status});
   }
 }

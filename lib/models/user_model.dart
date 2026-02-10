@@ -2,7 +2,7 @@
 ///
 /// Roles: `owner`, `employee`, `driver`.
 class UserModel {
-  final int? id;
+  final String? id;
   final String name;
   final String phone;
   final String role; // owner | employee | driver
@@ -28,16 +28,16 @@ class UserModel {
   };
 
   factory UserModel.fromMap(Map<String, dynamic> map) => UserModel(
-    id: map['id'] as int?,
+    id: map['id']?.toString(),
     name: map['name'] as String,
     phone: map['phone'] as String,
     role: map['role'] as String,
     username: map['username'] as String,
-    password: map['password'] as String,
+    password: map['password'] as String? ?? '',
   );
 
   UserModel copyWith({
-    int? id,
+    String? id,
     String? name,
     String? phone,
     String? role,

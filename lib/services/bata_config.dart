@@ -1,40 +1,27 @@
-import '../database/db_helper.dart';
+import 'api_client.dart';
 
-/// Service to manage driver bata configuration per vehicle type.
-///
-/// Bata values are stored in the `bata_config` table and seeded with defaults.
+/// Service to manage driver bata configuration per vehicle type via REST API.
 class BataConfigService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
 
   /// Returns the bata per day for a given [vehicleType].
   Future<double> getBataPerDay(String vehicleType) async {
-    final rows = await _db.queryWhere(
-      'bata_config',
-      'vehicleType = ?',
-      [vehicleType],
-    );
-    if (rows.isNotEmpty) {
-      return (rows.first['bataPerDay'] as num).toDouble();
-    }
-    return 0;
+    final configs = await getAllBataConfigs();
+    return configs[vehicleType] ?? 0;
   }
 
   /// Returns all bata configs as a map: vehicleType → bataPerDay.
   Future<Map<String, double>> getAllBataConfigs() async {
-    final rows = await _db.queryAll('bata_config');
+    final res = await _api.get('/bata-config') as List;
     return {
-      for (final row in rows)
-        row['vehicleType'] as String: (row['bataPerDay'] as num).toDouble(),
+      for (final item in res)
+        (item as Map<String, dynamic>)['vehicleType'] as String:
+            ((item)['bataPerDay'] as num).toDouble(),
     };
   }
 
   /// Updates bata per day for a vehicle type.
   Future<void> updateBata(String vehicleType, double bataPerDay) async {
-    await _db.update(
-      'bata_config',
-      {'bataPerDay': bataPerDay},
-      'vehicleType = ?',
-      [vehicleType],
-    );
+    await _api.put('/bata-config/$vehicleType', {'bataPerDay': bataPerDay});
   }
 }

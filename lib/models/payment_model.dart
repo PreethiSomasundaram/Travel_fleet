@@ -1,7 +1,7 @@
 /// Tracks payment status for a bill.
 class PaymentModel {
-  final int? id;
-  final int billId;
+  final String? id;
+  final String billId;
   final double amount;
   final String status; // paid | pending
   final String date; // ISO-8601
@@ -26,8 +26,8 @@ class PaymentModel {
   };
 
   factory PaymentModel.fromMap(Map<String, dynamic> map) => PaymentModel(
-    id: map['id'] as int?,
-    billId: map['billId'] as int,
+    id: map['id']?.toString(),
+    billId: map['billId'].toString(),
     amount: (map['amount'] as num).toDouble(),
     status: map['status'] as String,
     date: map['date'] as String,

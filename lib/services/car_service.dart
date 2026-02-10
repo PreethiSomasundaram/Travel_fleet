@@ -1,37 +1,39 @@
-import '../database/db_helper.dart';
 import '../models/car_model.dart';
 import '../core/constants.dart';
+import 'api_client.dart';
 
-/// Service for car CRUD and alert logic.
+/// Service for car CRUD and alert logic via REST API.
 class CarService {
-  final _db = DBHelper.instance;
+  final _api = ApiClient.instance;
 
-  Future<int> addCar(CarModel car) => _db.insert('cars', car.toMap());
+  Future<CarModel> addCar(CarModel car) async {
+    final res = await _api.post('/cars', car.toMap());
+    return CarModel.fromMap(res as Map<String, dynamic>);
+  }
 
-  Future<int> updateCar(CarModel car) =>
-      _db.update('cars', car.toMap(), 'id = ?', [car.id]);
+  Future<CarModel> updateCar(CarModel car) async {
+    final res = await _api.put('/cars/${car.id}', car.toMap());
+    return CarModel.fromMap(res as Map<String, dynamic>);
+  }
 
-  Future<int> deleteCar(int id) => _db.delete('cars', 'id = ?', [id]);
+  Future<void> deleteCar(String id) async {
+    await _api.delete('/cars/$id');
+  }
 
   Future<List<CarModel>> getAllCars() async {
-    final rows = await _db.queryAll('cars');
-    return rows.map(CarModel.fromMap).toList();
+    final res = await _api.get('/cars') as List;
+    return res
+        .map((e) => CarModel.fromMap(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<CarModel?> getCarById(int id) async {
-    final rows = await _db.queryWhere('cars', 'id = ?', [id]);
-    if (rows.isEmpty) return null;
-    return CarModel.fromMap(rows.first);
-  }
-
-  /// Updates current KM after service.
-  Future<void> updateServiceKm(int carId, double newNextServiceKm) async {
-    await _db.update(
-      'cars',
-      {'nextServiceKm': newNextServiceKm},
-      'id = ?',
-      [carId],
-    );
+  Future<CarModel?> getCarById(String id) async {
+    try {
+      final res = await _api.get('/cars/$id');
+      return CarModel.fromMap(res as Map<String, dynamic>);
+    } on ApiException {
+      return null;
+    }
   }
 
   // ── Alert helpers ─────────────────────────────────────────────────────────

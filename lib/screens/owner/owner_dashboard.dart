@@ -6,6 +6,7 @@ import '../../services/car_service.dart';
 import '../../services/trip_service.dart';
 import '../../services/billing_service.dart';
 import '../../services/notification_service.dart';
+import '../../services/user_service.dart';
 import '../../widgets/summary_tile.dart';
 
 /// Owner dashboard – full access to all data and alerts.
@@ -59,8 +60,12 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, AppRoutes.login),
+            onPressed: () async {
+              await UserService().logout();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
+            },
           ),
         ],
       ),

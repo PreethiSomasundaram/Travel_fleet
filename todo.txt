@@ -1,0 +1,5 @@
+Set up MongoDB Atlas — Edit .env with your Atlas connection string
+Start backend: cd backend && node server.js
+Update API URL in config.dart for your device (emulator/physical/web)
+Run Flutter: flutter run
+Default login: username owner, password owner123

@@ -1,6 +1,6 @@
 /// Represents a vehicle managed by the fleet.
 class CarModel {
-  final int? id;
+  final String? id;
   final String vehicleNumber;
   final String vehicleType; // Sedan, MPV, SUV, Tempo Traveller, Bus
   final double currentKm;
@@ -32,7 +32,7 @@ class CarModel {
   };
 
   factory CarModel.fromMap(Map<String, dynamic> map) => CarModel(
-    id: map['id'] as int?,
+    id: map['id']?.toString(),
     vehicleNumber: map['vehicleNumber'] as String,
     vehicleType: map['vehicleType'] as String,
     currentKm: (map['currentKm'] as num).toDouble(),
@@ -43,7 +43,7 @@ class CarModel {
   );
 
   CarModel copyWith({
-    int? id,
+    String? id,
     String? vehicleNumber,
     String? vehicleType,
     double? currentKm,

@@ -1,7 +1,7 @@
 /// Represents a generated bill for a trip.
 class BillModel {
-  final int? id;
-  final int tripId;
+  final String? id;
+  final String tripId;
   final String billDate; // ISO-8601
   final String tripDate;
   final String vehicleNumber;
@@ -80,8 +80,8 @@ class BillModel {
   };
 
   factory BillModel.fromMap(Map<String, dynamic> map) => BillModel(
-    id: map['id'] as int?,
-    tripId: map['tripId'] as int,
+    id: map['id']?.toString(),
+    tripId: map['tripId'].toString(),
     billDate: map['billDate'] as String,
     tripDate: map['tripDate'] as String,
     vehicleNumber: map['vehicleNumber'] as String,
@@ -92,7 +92,7 @@ class BillModel {
     endingKm: (map['endingKm'] as num).toDouble(),
     totalKm: (map['totalKm'] as num).toDouble(),
     rentType: map['rentType'] as String,
-    rentUnits: map['rentUnits'] as int,
+    rentUnits: (map['rentUnits'] as num).toInt(),
     ratePerUnit: (map['ratePerUnit'] as num).toDouble(),
     ratePerKm: (map['ratePerKm'] as num).toDouble(),
     kmAmount: (map['kmAmount'] as num).toDouble(),

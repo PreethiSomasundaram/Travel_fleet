@@ -42,8 +42,8 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
   List<CarModel> _cars = [];
   List<UserModel> _drivers = [];
-  int? _selectedCarId;
-  int? _selectedDriverId;
+  String? _selectedCarId;
+  String? _selectedDriverId;
   TripModel? _existing;
   bool _isEdit = false;
   List<AdvanceModel> _advances = [];
@@ -82,7 +82,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     }
   }
 
-  Future<void> _loadAdvances(int tripId) async {
+  Future<void> _loadAdvances(String tripId) async {
     _advances = await _tripService.getAdvancesForTrip(tripId);
     setState(() {});
   }
@@ -204,7 +204,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
               // Car picker
               if (_cars.isNotEmpty)
-                DropdownField<int>(
+                DropdownField<String>(
                   label: 'Assign Car',
                   value: _selectedCarId,
                   items: _cars
@@ -218,7 +218,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
 
               // Driver picker
               if (_drivers.isNotEmpty)
-                DropdownField<int>(
+                DropdownField<String>(
                   label: 'Assign Driver',
                   value: _selectedDriverId,
                   items: _drivers

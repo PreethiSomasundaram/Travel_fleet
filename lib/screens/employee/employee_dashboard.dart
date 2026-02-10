@@ -3,6 +3,7 @@ import '../../core/routes.dart';
 import '../../core/theme.dart';
 import '../../models/user_model.dart';
 import '../../services/trip_service.dart';
+import '../../services/user_service.dart';
 import '../../widgets/summary_tile.dart';
 
 /// Employee dashboard – can add bookings, assign car/driver, enter advances.
@@ -42,8 +43,12 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, AppRoutes.login),
+            onPressed: () async {
+              await UserService().logout();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
+            },
           ),
         ],
       ),

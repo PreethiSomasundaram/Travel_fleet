@@ -1,13 +1,13 @@
 /// Represents a trip / booking in the fleet system.
 class TripModel {
-  final int? id;
+  final String? id;
   final String pickupDate; // ISO-8601
   final String pickupTime;
   final String pickupLocation;
   final int numberOfDays;
   final String placesToVisit;
-  final int? carId;
-  final int? driverId;
+  final String? carId;
+  final String? driverId;
   final String status; // created | started | ended
 
   // Filled by driver on trip start
@@ -69,14 +69,14 @@ class TripModel {
   };
 
   factory TripModel.fromMap(Map<String, dynamic> map) => TripModel(
-    id: map['id'] as int?,
+    id: map['id']?.toString(),
     pickupDate: map['pickupDate'] as String,
     pickupTime: map['pickupTime'] as String,
     pickupLocation: map['pickupLocation'] as String,
-    numberOfDays: map['numberOfDays'] as int,
+    numberOfDays: (map['numberOfDays'] as num).toInt(),
     placesToVisit: map['placesToVisit'] as String,
-    carId: map['carId'] as int?,
-    driverId: map['driverId'] as int?,
+    carId: map['carId']?.toString(),
+    driverId: map['driverId']?.toString(),
     status: map['status'] as String? ?? 'created',
     startTime: map['startTime'] as String?,
     endTime: map['endTime'] as String?,
@@ -89,14 +89,14 @@ class TripModel {
   );
 
   TripModel copyWith({
-    int? id,
+    String? id,
     String? pickupDate,
     String? pickupTime,
     String? pickupLocation,
     int? numberOfDays,
     String? placesToVisit,
-    int? carId,
-    int? driverId,
+    String? carId,
+    String? driverId,
     String? status,
     String? startTime,
     double? startingKm,

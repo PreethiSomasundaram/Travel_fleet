@@ -17,7 +17,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _billingService = BillingService();
   final _paymentService = PaymentService();
   List<BillModel> _bills = [];
-  Map<int, PaymentModel> _payments = {};
+  Map<String, PaymentModel> _payments = {};
   bool _loading = true;
 
   @override
@@ -30,7 +30,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final bills = await _billingService.getAllBills();
     final allPayments = await _paymentService.getAllPayments();
 
-    final paymentMap = <int, PaymentModel>{};
+    final paymentMap = <String, PaymentModel>{};
     for (final p in allPayments) {
       paymentMap[p.billId] = p;
     }

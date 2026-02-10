@@ -3,6 +3,7 @@ import '../../core/routes.dart';
 import '../../models/user_model.dart';
 import '../../models/trip_model.dart';
 import '../../services/trip_service.dart';
+import '../../services/user_service.dart';
 
 /// Driver dashboard – view assigned trips, start/end trips, apply leave.
 class DriverDashboard extends StatefulWidget {
@@ -51,8 +52,12 @@ class _DriverDashboardState extends State<DriverDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () =>
-                Navigator.pushReplacementNamed(context, AppRoutes.login),
+            onPressed: () async {
+              await UserService().logout();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
+            },
           ),
         ],
       ),

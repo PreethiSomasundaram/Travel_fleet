@@ -1,7 +1,7 @@
 /// Represents a driver's leave request.
 class LeaveModel {
-  final int? id;
-  final int driverId;
+  final String? id;
+  final String driverId;
   final String date; // ISO-8601
   final String leaveType; // full_day | half_day
   final String status; // pending | approved | rejected
@@ -26,8 +26,8 @@ class LeaveModel {
   };
 
   factory LeaveModel.fromMap(Map<String, dynamic> map) => LeaveModel(
-    id: map['id'] as int?,
-    driverId: map['driverId'] as int,
+    id: map['id']?.toString(),
+    driverId: map['driverId'].toString(),
     date: map['date'] as String,
     leaveType: map['leaveType'] as String,
     status: map['status'] as String? ?? 'pending',
