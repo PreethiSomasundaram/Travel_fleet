@@ -6,5 +6,5 @@ class AppConfig {
   /// • Physical device   → replace with your machine's LAN IP, e.g.
   ///   `http://192.168.1.100:3000/api`
   /// • Web / Windows      → `http://localhost:3000/api`
-  static const String apiBaseUrl = 'http://10.0.2.2:3000/api';
+  static const String apiBaseUrl = 'http://localhost:3000/api';
 }
