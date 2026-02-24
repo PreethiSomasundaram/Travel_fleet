@@ -13,13 +13,14 @@ void main() async {
 /// Root widget for the Travel Fleet Management app.
 class TravelFleetApp extends StatelessWidget {
   const TravelFleetApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system, // Follows system theme preference
       initialRoute: AppRoutes.login,
       routes: AppRoutes.routes,
     );

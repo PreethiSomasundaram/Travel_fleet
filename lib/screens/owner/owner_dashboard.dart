@@ -7,7 +7,8 @@ import '../../services/trip_service.dart';
 import '../../services/billing_service.dart';
 import '../../services/notification_service.dart';
 import '../../services/user_service.dart';
-import '../../widgets/summary_tile.dart';
+import '../../widgets/enhanced_card.dart';
+import '../../widgets/alert_card.dart' as alert_widget;
 
 /// Owner dashboard – full access to all data and alerts.
 class OwnerDashboard extends StatefulWidget {
@@ -53,10 +54,14 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
   @override
   Widget build(BuildContext context) {
     final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owner Dashboard'),
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -74,93 +79,178 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           : RefreshIndicator(
               onRefresh: _loadData,
               child: ListView(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 children: [
-                  if (user != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        'Welcome, ${user.name}',
-                        style: AppTheme.heading,
+                  if (user != null) ...[
+                    Text(
+                      'Welcome back, ${user.name}',
+                      style: AppTheme.heading.copyWith(
+                        color: colorScheme.onSurface,
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Owner • Fleet Management Dashboard',
+                      style: AppTheme.bodySmall.copyWith(
+                        color: colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
 
-                  // ── Summary Tiles ──────────────────────────────────────
+                  // ── Summary Cards ──────────────────────────────────────
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 1.3,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
                     children: [
-                      SummaryTile(
-                        label: 'Cars',
+                      EnhancedCard(
+                        title: 'Active Vehicles',
                         value: '$_carCount',
                         icon: Icons.directions_car,
-                        color: Colors.blue,
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.carDashboard),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.carDashboard,
+                        ),
                       ),
-                      SummaryTile(
-                        label: 'Trips',
+                      EnhancedCard(
+                        title: 'Total Trips',
                         value: '$_tripCount',
                         icon: Icons.map,
-                        color: Colors.green,
                         onTap: () =>
                             Navigator.pushNamed(context, AppRoutes.tripList),
                       ),
-                      SummaryTile(
-                        label: 'Bills',
+                      EnhancedCard(
+                        title: 'Pending Bills',
                         value: '$_billCount',
                         icon: Icons.receipt_long,
-                        color: Colors.orange,
                         onTap: () =>
                             Navigator.pushNamed(context, AppRoutes.billing),
                       ),
-                      SummaryTile(
-                        label: 'Alerts',
+                      EnhancedCard(
+                        title: 'Active Alerts',
                         value: '${_alerts.length}',
-                        icon: Icons.warning_amber_rounded,
-                        color: _alerts.isEmpty ? Colors.grey : Colors.red,
+                        icon: Icons.notifications_active,
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 24),
 
                   // ── Quick Actions ──────────────────────────────────────
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _actionChip(Icons.payment, 'Payments', AppRoutes.payments),
-                      _actionChip(Icons.event_busy, 'Leaves', AppRoutes.leaves),
-                      _actionChip(Icons.people, 'Drivers', AppRoutes.driverPayroll),
-                    ],
+                  Text(
+                    'Quick Actions',
+                    style: AppTheme.subHeading.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildActionButton(
+                          context,
+                          Icons.payment,
+                          'Payments',
+                          AppRoutes.payments,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildActionButton(
+                          context,
+                          Icons.event_busy,
+                          'Leave Requests',
+                          AppRoutes.leaves,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildActionButton(
+                          context,
+                          Icons.people,
+                          'Driver Management',
+                          AppRoutes.driverPayroll,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildActionButton(
+                          context,
+                          Icons.settings,
+                          'Settings',
+                          AppRoutes.login,
+                        ),
+                      ],
+                    ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
 
-                  // ── Alerts ─────────────────────────────────────────────
+                  // ── Alerts Section ─────────────────────────────────────
                   if (_alerts.isNotEmpty) ...[
-                    const Text('⚠️ Alerts', style: AppTheme.subHeading),
-                    const SizedBox(height: 8),
-                    ..._alerts.map(
-                      (a) => Card(
-                        color: a.severity == AlertSeverity.critical
-                            ? Colors.red.shade50
-                            : Colors.orange.shade50,
-                        child: ListTile(
-                          leading: Icon(
-                            a.severity == AlertSeverity.critical
-                                ? Icons.error
-                                : Icons.warning,
-                            color: a.severity == AlertSeverity.critical
-                                ? Colors.red
-                                : Colors.orange,
-                          ),
-                          title: Text(a.title),
-                          subtitle: Text(a.message),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: colorScheme.error,
+                          size: 20,
                         ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Active Alerts',
+                          style: AppTheme.subHeading.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ..._alerts.map((a) {
+                      final severity = a.severity == AlertSeverity.critical
+                          ? alert_widget.AlertSeverity.critical
+                          : a.severity == AlertSeverity.warning
+                          ? alert_widget.AlertSeverity.warning
+                          : alert_widget.AlertSeverity.info;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: alert_widget.AlertCard(
+                          title: a.title,
+                          message: a.message,
+                          severity: severity,
+                        ),
+                      );
+                    }),
+                  ] else ...[
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colorScheme.primary.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: colorScheme.primary,
+                            size: 40,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'All Systems Operational',
+                            style: AppTheme.subHeading.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'No active alerts. Your fleet is running smoothly.',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: colorScheme.onSurface.withOpacity(0.6),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -170,11 +260,25 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     );
   }
 
-  Widget _actionChip(IconData icon, String label, String route) {
-    return ActionChip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      onPressed: () => Navigator.pushNamed(context, route),
+  Widget _buildActionButton(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String route,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SizedBox(
+      width: 140,
+      child: OutlinedButton.icon(
+        onPressed: () => Navigator.pushNamed(context, route),
+        icon: Icon(icon, size: 20),
+        label: Text(label, textAlign: TextAlign.center),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          side: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+        ),
+      ),
     );
   }
 }
