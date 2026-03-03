@@ -76,10 +76,26 @@ class ApiClient {
   // ── Response handler ──────────────────────────────────────────────────────
 
   dynamic _handleResponse(http.Response res) {
-    final body = jsonDecode(res.body);
+    dynamic body;
+    if (res.body.isNotEmpty) {
+      try {
+        body = jsonDecode(res.body);
+      } catch (_) {
+        // Response wasn't JSON; keep raw body as string
+        body = res.body;
+      }
+    }
+
     if (res.statusCode >= 200 && res.statusCode < 300) return body;
-    final error = body is Map ? (body['error'] ?? 'Unknown error') : 'Unknown error';
-    throw ApiException(error.toString(), res.statusCode);
+
+    String errorMessage = 'Unknown error';
+    if (body is Map) {
+      errorMessage = (body['error'] ?? body['message'] ?? errorMessage).toString();
+    } else if (body is String && body.isNotEmpty) {
+      errorMessage = body;
+    }
+
+    throw ApiException(errorMessage, res.statusCode);
   }
 }
 

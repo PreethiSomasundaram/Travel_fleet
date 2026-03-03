@@ -34,10 +34,9 @@ class InfoCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Divider(),
               ...items.map(
@@ -49,8 +48,10 @@ class InfoCard extends StatelessWidget {
                         flex: 2,
                         child: Text(
                           entry.key,
-                          style: const TextStyle(
-                            color: Colors.grey,
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
                             fontSize: 13,
                           ),
                         ),

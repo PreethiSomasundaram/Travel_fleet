@@ -8,6 +8,8 @@ class BillDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bill = ModalRoute.of(context)?.settings.arguments as BillModel?;
+    final cs = Theme.of(context).colorScheme;
+
     if (bill == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Bill Detail')),
@@ -22,55 +24,80 @@ class BillDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _header('Trip Information'),
-            _row('Vehicle', bill.vehicleNumber),
-            _row('Places', bill.placesToVisit),
-            _row('Trip Date', bill.tripDate),
-            _row('Start', bill.startDateTime),
-            _row('End', bill.endDateTime),
+            _header(context, 'Trip Information'),
+            _row(context, 'Vehicle', bill.vehicleNumber),
+            _row(context, 'Places', bill.placesToVisit),
+            _row(context, 'Trip Date', bill.tripDate),
+            _row(context, 'Start', bill.startDateTime),
+            _row(context, 'End', bill.endDateTime),
             const Divider(height: 24),
-            _header('KM Details'),
-            _row('Starting KM', bill.startingKm.toStringAsFixed(0)),
-            _row('Ending KM', bill.endingKm.toStringAsFixed(0)),
-            _row('Total KM', bill.totalKm.toStringAsFixed(0)),
+            _header(context, 'KM Details'),
+            _row(context, 'Starting KM', bill.startingKm.toStringAsFixed(0)),
+            _row(context, 'Ending KM', bill.endingKm.toStringAsFixed(0)),
+            _row(context, 'Total KM', bill.totalKm.toStringAsFixed(0)),
             const Divider(height: 24),
-            _header('Billing Details'),
-            _row('Rent Type', bill.rentType.toUpperCase()),
-            _row('Rent Units', '${bill.rentUnits}'),
-            _row('Rate per ${bill.rentType}', '₹${bill.ratePerUnit.toStringAsFixed(0)}'),
-            _row('Rate per KM', '₹${bill.ratePerKm.toStringAsFixed(0)}'),
-            _row('KM Amount', '₹${bill.kmAmount.toStringAsFixed(0)}'),
-            _row('Driver Bata', '₹${bill.driverBata.toStringAsFixed(0)}'),
+            _header(context, 'Billing Details'),
+            _row(context, 'Rent Type', bill.rentType.toUpperCase()),
+            _row(context, 'Rent Units', '${bill.rentUnits}'),
+            _row(
+              context,
+              'Rate per ${bill.rentType}',
+              '₹${bill.ratePerUnit.toStringAsFixed(0)}',
+            ),
+            _row(
+              context,
+              'Rate per KM',
+              '₹${bill.ratePerKm.toStringAsFixed(0)}',
+            ),
+            _row(context, 'KM Amount', '₹${bill.kmAmount.toStringAsFixed(0)}'),
+            _row(
+              context,
+              'Driver Bata',
+              '₹${bill.driverBata.toStringAsFixed(0)}',
+            ),
             const Divider(height: 24),
-            _header('Charges'),
-            _row('Toll', '₹${bill.toll.toStringAsFixed(0)}'),
-            _row('Permit', '₹${bill.permit.toStringAsFixed(0)}'),
-            _row('Parking', '₹${bill.parking.toStringAsFixed(0)}'),
-            _row('Other', '₹${bill.otherCharges.toStringAsFixed(0)}'),
+            _header(context, 'Charges'),
+            _row(context, 'Toll', '₹${bill.toll.toStringAsFixed(0)}'),
+            _row(context, 'Permit', '₹${bill.permit.toStringAsFixed(0)}'),
+            _row(context, 'Parking', '₹${bill.parking.toStringAsFixed(0)}'),
+            _row(context, 'Other', '₹${bill.otherCharges.toStringAsFixed(0)}'),
             const Divider(height: 24),
-            _header('Summary'),
-            _row('Total Amount', '₹${bill.totalAmount.toStringAsFixed(0)}'),
-            _row('Advance', '₹${bill.advanceAmount.toStringAsFixed(0)}'),
+            _header(context, 'Summary'),
+            _row(
+              context,
+              'Total Amount',
+              '₹${bill.totalAmount.toStringAsFixed(0)}',
+            ),
+            _row(
+              context,
+              'Advance',
+              '₹${bill.advanceAmount.toStringAsFixed(0)}',
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: cs.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: cs.primary.withOpacity(0.3)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'PAYABLE AMOUNT',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: cs.onSurface,
+                    ),
                   ),
                   Text(
                     '₹${bill.payableAmount.toStringAsFixed(0)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
-                      color: Colors.blue,
+                      color: cs.primary,
                     ),
                   ),
                 ],
@@ -82,18 +109,27 @@ class BillDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _header(String text) => Padding(
+  Widget _header(BuildContext context, String text) => Padding(
     padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+    child: Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+    ),
   );
 
-  Widget _row(String label, String value) => Padding(
+  Widget _row(BuildContext context, String label, String value) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 2),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+          ),
+        ),
         Text(value),
       ],
     ),

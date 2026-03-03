@@ -31,9 +31,9 @@ class _TripStartScreenState extends State<TripStartScreen> {
 
     await _tripService.startTrip(_trip!.id!, km);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trip started!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Trip started!')));
       Navigator.pop(context);
     }
   }
@@ -51,8 +51,12 @@ class _TripStartScreenState extends State<TripStartScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Trip: ${_trip!.placesToVisit}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Trip: ${_trip!.placesToVisit}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text('Pickup: ${_trip!.pickupLocation}'),
                     Text('Date: ${_trip!.pickupDate}'),
@@ -63,7 +67,8 @@ class _TripStartScreenState extends State<TripStartScreen> {
                       keyboardType: TextInputType.number,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Enter starting KM';
-                        if (double.tryParse(v) == null) return 'Enter valid number';
+                        if (double.tryParse(v) == null)
+                          return 'Enter valid number';
                         return null;
                       },
                     ),

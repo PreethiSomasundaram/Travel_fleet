@@ -37,7 +37,9 @@ class _TripEndScreenState extends State<TripEndScreen> {
     // Validate ending KM > starting KM
     if (_trip!.startingKm != null && km <= _trip!.startingKm!) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ending KM must be greater than Starting KM')),
+        const SnackBar(
+          content: Text('Ending KM must be greater than Starting KM'),
+        ),
       );
       return;
     }
@@ -54,9 +56,9 @@ class _TripEndScreenState extends State<TripEndScreen> {
     await _tripService.endTrip(_trip!.id!, km);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trip ended!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Trip ended!')));
       Navigator.pop(context);
     }
   }
@@ -74,10 +76,16 @@ class _TripEndScreenState extends State<TripEndScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Trip: ${_trip!.placesToVisit}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Trip: ${_trip!.placesToVisit}',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     if (_trip!.startingKm != null)
-                      Text('Starting KM: ${_trip!.startingKm!.toStringAsFixed(0)}'),
+                      Text(
+                        'Starting KM: ${_trip!.startingKm!.toStringAsFixed(0)}',
+                      ),
                     const SizedBox(height: 24),
                     InputField(
                       label: 'Ending KM',
@@ -85,13 +93,18 @@ class _TripEndScreenState extends State<TripEndScreen> {
                       keyboardType: TextInputType.number,
                       validator: (v) {
                         if (v == null || v.isEmpty) return 'Enter ending KM';
-                        if (double.tryParse(v) == null) return 'Enter valid number';
+                        if (double.tryParse(v) == null)
+                          return 'Enter valid number';
                         return null;
                       },
                     ),
                     const Divider(height: 32),
-                    const Text('Applicable Charges',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      'Applicable Charges',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     InputField(
                       label: 'Toll',
                       controller: _tollCtrl,
@@ -119,7 +132,8 @@ class _TripEndScreenState extends State<TripEndScreen> {
                         icon: const Icon(Icons.stop),
                         label: const Text('End Trip'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: const Color(0xFFF59E0B),
+                          foregroundColor: Colors.white,
                         ),
                         onPressed: _endTrip,
                       ),

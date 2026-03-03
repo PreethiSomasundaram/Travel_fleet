@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -50,7 +50,6 @@ async function seedDefaults() {
       username: 'owner',
       password: 'owner123',
     });
-    console.log('✅ Default owner account created (owner / owner123)');
   }
 
   // Seed bata config if empty
@@ -65,21 +64,23 @@ async function seedDefaults() {
       { vehicleType: 'mini_bus', bataPerDay: 900 },
     ];
     await BataConfig.insertMany(defaults);
-    console.log('✅ Default bata config seeded');
   }
 }
 
 // ── Start ───────────────────────────────────────────────────────────────────
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 5000,
+  })
   .then(async () => {
-    console.log('🟢 Connected to MongoDB Atlas');
+    console.log('MongoDB connected successfully');
     await seedDefaults();
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((err) => {
-    console.error('🔴 MongoDB connection error:', err.message);
+    console.error('MongoDB connection error:', err.message);
     process.exit(1);
   });

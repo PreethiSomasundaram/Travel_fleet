@@ -4,6 +4,16 @@ const { auth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ── POST /api/bills ─────────────────────────────────────────────────────────
+router.post('/', auth, requireRole('owner', 'employee'), async (req, res) => {
+  try {
+    const bill = await Bill.create(req.body);
+    res.status(201).json(bill);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── GET /api/bills ──────────────────────────────────────────────────────────
 router.get('/', auth, async (req, res) => {
   try {

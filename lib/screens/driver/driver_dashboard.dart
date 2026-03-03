@@ -37,6 +37,8 @@ class _DriverDashboardState extends State<DriverDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Driver Dashboard'),
@@ -66,7 +68,25 @@ class _DriverDashboardState extends State<DriverDashboard> {
           : RefreshIndicator(
               onRefresh: _loadTrips,
               child: _myTrips.isEmpty
-                  ? const Center(child: Text('No trips assigned'))
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.route,
+                            size: 64,
+                            color: cs.onSurface.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No trips assigned',
+                            style: TextStyle(
+                              color: cs.onSurface.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: _myTrips.length,
@@ -76,7 +96,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                           child: ListTile(
                             leading: Icon(
                               _statusIcon(trip.status),
-                              color: _statusColor(trip.status),
+                              color: _statusColor(trip.status, cs),
                             ),
                             title: Text(trip.placesToVisit),
                             subtitle: Text(
@@ -84,7 +104,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                               'Status: ${trip.status.toUpperCase()}',
                             ),
                             isThreeLine: true,
-                            trailing: _tripAction(trip),
+                            trailing: _tripAction(trip, cs),
                           ),
                         );
                       },
@@ -93,7 +113,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
     );
   }
 
-  Widget? _tripAction(TripModel trip) {
+  Widget? _tripAction(TripModel trip, ColorScheme cs) {
     if (trip.status == 'created') {
       return ElevatedButton(
         onPressed: () => Navigator.pushNamed(
@@ -105,7 +125,10 @@ class _DriverDashboardState extends State<DriverDashboard> {
       );
     } else if (trip.status == 'started') {
       return ElevatedButton(
-        style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFF59E0B),
+          foregroundColor: Colors.white,
+        ),
         onPressed: () => Navigator.pushNamed(
           context,
           AppRoutes.tripEnd,
@@ -114,7 +137,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
         child: const Text('End'),
       );
     }
-    return const Icon(Icons.check_circle, color: Colors.green);
+    return Icon(Icons.check_circle, color: cs.tertiary);
   }
 
   IconData _statusIcon(String status) {
@@ -128,14 +151,14 @@ class _DriverDashboardState extends State<DriverDashboard> {
     }
   }
 
-  Color _statusColor(String status) {
+  Color _statusColor(String status, ColorScheme cs) {
     switch (status) {
       case 'started':
-        return Colors.blue;
+        return cs.primary;
       case 'ended':
-        return Colors.green;
+        return cs.tertiary;
       default:
-        return Colors.grey;
+        return cs.onSurface.withOpacity(0.4);
     }
   }
 }

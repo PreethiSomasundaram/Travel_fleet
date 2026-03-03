@@ -65,17 +65,17 @@ class _BillingScreenState extends State<BillingScreen> {
         ratePerKm: double.tryParse(_ratePerKmCtrl.text) ?? 0,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bill generated!')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Bill generated!')));
         _tripArg = null; // clear so we show the list
         _loadBills();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
     setState(() => _generating = false);
@@ -94,8 +94,12 @@ class _BillingScreenState extends State<BillingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Trip: ${_tripArg!.placesToVisit}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  'Trip: ${_tripArg!.placesToVisit}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
                 Text('Total KM: ${_tripArg!.totalKm.toStringAsFixed(0)}'),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -108,13 +112,17 @@ class _BillingScreenState extends State<BillingScreen> {
                   decoration: const InputDecoration(labelText: 'Rent Type'),
                 ),
                 InputField(
-                  label: _rentType == 'day' ? 'Number of Days' : 'Number of Hours',
+                  label: _rentType == 'day'
+                      ? 'Number of Days'
+                      : 'Number of Hours',
                   controller: _rentUnitsCtrl,
                   keyboardType: TextInputType.number,
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 InputField(
-                  label: _rentType == 'day' ? 'Rate per Day (₹)' : 'Rate per Hour (₹)',
+                  label: _rentType == 'day'
+                      ? 'Rate per Day (₹)'
+                      : 'Rate per Hour (₹)',
                   controller: _ratePerUnitCtrl,
                   keyboardType: TextInputType.number,
                   validator: (v) => v!.isEmpty ? 'Required' : null,
@@ -148,31 +156,34 @@ class _BillingScreenState extends State<BillingScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _bills.isEmpty
-              ? const Center(child: Text('No bills generated yet'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: _bills.length,
-                  itemBuilder: (context, i) {
-                    final bill = _bills[i];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.receipt_long, color: Colors.orange),
-                        title: Text('Bill #${bill.id} – ${bill.vehicleNumber}'),
-                        subtitle: Text(
-                          '${bill.placesToVisit}\n'
-                          'Total: ₹${bill.totalAmount.toStringAsFixed(0)} '
-                          '| Payable: ₹${bill.payableAmount.toStringAsFixed(0)}',
-                        ),
-                        isThreeLine: true,
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.billDetail,
-                          arguments: bill,
-                        ),
-                      ),
-                    );
-                  },
-                ),
+          ? const Center(child: Text('No bills generated yet'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _bills.length,
+              itemBuilder: (context, i) {
+                final bill = _bills[i];
+                return Card(
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.receipt_long,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    title: Text('Bill #${bill.id} – ${bill.vehicleNumber}'),
+                    subtitle: Text(
+                      '${bill.placesToVisit}\n'
+                      'Total: ₹${bill.totalAmount.toStringAsFixed(0)} '
+                      '| Payable: ₹${bill.payableAmount.toStringAsFixed(0)}',
+                    ),
+                    isThreeLine: true,
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.billDetail,
+                      arguments: bill,
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

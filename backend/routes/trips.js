@@ -57,11 +57,10 @@ router.put('/:id', auth, async (req, res) => {
 
 // ── PUT /api/trips/:id/start ────────────────────────────────────────────────
 router.put('/:id/start', auth, async (req, res) => {
-  try {
-    const { startKm, startDate, startTime } = req.body;
+  try {    const { startingKm, startTime } = req.body;
     const trip = await Trip.findByIdAndUpdate(
       req.params.id,
-      { startKm, startDate, startTime, status: 'ongoing' },
+      { startingKm, startTime, status: 'started' },
       { new: true, runValidators: true }
     );
     if (!trip) return res.status(404).json({ error: 'Trip not found' });
@@ -73,47 +72,52 @@ router.put('/:id/start', auth, async (req, res) => {
 
 // ── PUT /api/trips/:id/end ──────────────────────────────────────────────────
 router.put('/:id/end', auth, async (req, res) => {
-  try {
-    const { endKm, endDate, endTime, tollAmount, permit } = req.body;
+  try {    const { endingKm, toll, permit, parking, otherCharges } = req.body;
     const trip = await Trip.findById(req.params.id);
     if (!trip) return res.status(404).json({ error: 'Trip not found' });
 
-    trip.endKm = endKm;
-    trip.endDate = endDate;
-    trip.endTime = endTime;
-    trip.tollAmount = tollAmount || 0;
+    trip.endingKm = endingKm;
+    trip.endTime = new Date().toISOString();
+    trip.toll = toll || 0;
     trip.permit = permit || 0;
-    trip.totalKm = endKm - trip.startKm;
-    trip.status = 'completed';
+    trip.parking = parking || 0;
+    trip.otherCharges = otherCharges || 0;
+    trip.status = 'ended';
     await trip.save();
 
     // ── auto-generate bill ────────────────────────────────────────────────
-    const totalDays = _calcDays(trip.startDate, trip.endDate);
-    const bataConf = await BataConfig.findOne({ vehicleType: trip.vehicleType || 'sedan' });
+    const totalKm = (trip.endingKm || 0) - (trip.startingKm || 0);
+    const totalDays = _calcDays(trip.startTime, trip.endTime);
+    const bataConf = await BataConfig.findOne({ vehicleType: 'sedan' });
     const bataPerDay = bataConf ? bataConf.bataPerDay : 500;
     const driverBata = totalDays * bataPerDay;
-    const totalBill = driverBata + trip.tollAmount + trip.permit;
+    const chargesTotal = (trip.toll || 0) + (trip.permit || 0) + (trip.parking || 0) + (trip.otherCharges || 0);
+    const totalAmount = driverBata + chargesTotal;
 
     await Bill.create({
       tripId: trip._id.toString(),
-      carId: trip.carId,
-      driverId: trip.driverId,
-      customerName: trip.customerName,
-      startDate: trip.startDate,
-      endDate: trip.endDate,
-      startKm: trip.startKm,
-      endKm: trip.endKm,
-      totalKm: trip.totalKm,
-      totalDays,
-      bataPerDay,
+      billDate: new Date().toISOString(),
+      tripDate: trip.pickupDate || new Date().toISOString(),
+      vehicleNumber: 'N/A',
+      placesToVisit: trip.placesToVisit,
+      startDateTime: trip.startTime || '',
+      endDateTime: trip.endTime || '',
+      startingKm: trip.startingKm || 0,
+      endingKm: trip.endingKm || 0,
+      totalKm,
+      rentType: 'day',
+      rentUnits: totalDays,
+      ratePerUnit: 0,
+      ratePerKm: 0,
+      kmAmount: 0,
       driverBata,
-      tollAmount: trip.tollAmount,
-      permit: trip.permit,
-      totalBill,
+      toll: trip.toll || 0,
+      permit: trip.permit || 0,
+      parking: trip.parking || 0,
+      otherCharges: trip.otherCharges || 0,
+      totalAmount,
       advanceAmount: 0,
-      balanceAmount: totalBill,
-      status: 'unpaid',
-      generatedBy: req.user.id,
+      payableAmount: totalAmount,
     });
 
     res.json(trip);

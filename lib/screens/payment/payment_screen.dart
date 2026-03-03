@@ -46,12 +46,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final existing = _payments[bill.id];
     if (existing == null) {
       // Create as pending
-      await _paymentService.addPayment(PaymentModel(
-        billId: bill.id!,
-        amount: bill.payableAmount,
-        status: AppConstants.paymentPaid,
-        date: DateTime.now().toIso8601String(),
-      ));
+      await _paymentService.addPayment(
+        PaymentModel(
+          billId: bill.id!,
+          amount: bill.payableAmount,
+          status: AppConstants.paymentPaid,
+          date: DateTime.now().toIso8601String(),
+        ),
+      );
     } else {
       final newStatus = existing.status == AppConstants.paymentPaid
           ? AppConstants.paymentPending
@@ -63,40 +65,58 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Payments')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _bills.isEmpty
-              ? const Center(child: Text('No bills to track'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: _bills.length,
-                  itemBuilder: (context, i) {
-                    final bill = _bills[i];
-                    final payment = _payments[bill.id];
-                    final isPaid = payment?.status == AppConstants.paymentPaid;
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.payments_outlined,
+                    size: 64,
+                    color: cs.onSurface.withOpacity(0.3),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No bills to track',
+                    style: TextStyle(color: cs.onSurface.withOpacity(0.5)),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _bills.length,
+              itemBuilder: (context, i) {
+                final bill = _bills[i];
+                final payment = _payments[bill.id];
+                final isPaid = payment?.status == AppConstants.paymentPaid;
 
-                    return Card(
-                      child: ListTile(
-                        leading: Icon(
-                          isPaid ? Icons.check_circle : Icons.pending,
-                          color: isPaid ? Colors.green : Colors.orange,
-                        ),
-                        title: Text('Bill #${bill.id} – ${bill.vehicleNumber}'),
-                        subtitle: Text(
-                          'Payable: ₹${bill.payableAmount.toStringAsFixed(0)}\n'
-                          'Status: ${isPaid ? 'PAID' : 'PENDING'}',
-                        ),
-                        isThreeLine: true,
-                        trailing: TextButton(
-                          onPressed: () => _togglePayment(bill),
-                          child: Text(isPaid ? 'Mark Pending' : 'Mark Paid'),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                return Card(
+                  child: ListTile(
+                    leading: Icon(
+                      isPaid ? Icons.check_circle : Icons.pending,
+                      color: isPaid ? cs.tertiary : const Color(0xFFF59E0B),
+                    ),
+                    title: Text('Bill #${bill.id} – ${bill.vehicleNumber}'),
+                    subtitle: Text(
+                      'Payable: ₹${bill.payableAmount.toStringAsFixed(0)}\n'
+                      'Status: ${isPaid ? 'PAID' : 'PENDING'}',
+                    ),
+                    isThreeLine: true,
+                    trailing: TextButton(
+                      onPressed: () => _togglePayment(bill),
+                      child: Text(isPaid ? 'Mark Pending' : 'Mark Paid'),
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

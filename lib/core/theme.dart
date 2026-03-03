@@ -93,7 +93,7 @@ class AppTheme {
       centerTitle: false,
       surfaceTintColor: Colors.transparent,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: _lightSurface,
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -200,7 +200,7 @@ class AppTheme {
       centerTitle: false,
       surfaceTintColor: Colors.transparent,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: _darkSurface,
       elevation: 0,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -144,13 +144,15 @@ class _TripFormScreenState extends State<TripFormScreen> {
     final amount = double.tryParse(_advanceAmountCtrl.text);
     if (amount == null || amount <= 0) return;
 
-    await _tripService.addAdvance(AdvanceModel(
-      tripId: _existing!.id!,
-      amount: amount,
-      advanceType: _advanceType,
-      enteredBy: 'user', // simplified
-      date: DateTime.now().toIso8601String(),
-    ));
+    await _tripService.addAdvance(
+      AdvanceModel(
+        tripId: _existing!.id!,
+        amount: amount,
+        advanceType: _advanceType,
+        enteredBy: 'user', // simplified
+        date: DateTime.now().toIso8601String(),
+      ),
+    );
     _advanceAmountCtrl.clear();
     _loadAdvances(_existing!.id!);
   }
@@ -208,10 +210,12 @@ class _TripFormScreenState extends State<TripFormScreen> {
                   label: 'Assign Car',
                   value: _selectedCarId,
                   items: _cars
-                      .map((c) => DropdownMenuItem(
-                            value: c.id,
-                            child: Text('${c.vehicleNumber} (${c.vehicleType})'),
-                          ))
+                      .map(
+                        (c) => DropdownMenuItem(
+                          value: c.id,
+                          child: Text('${c.vehicleNumber} (${c.vehicleType})'),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) => setState(() => _selectedCarId = v),
                 ),
@@ -222,17 +226,20 @@ class _TripFormScreenState extends State<TripFormScreen> {
                   label: 'Assign Driver',
                   value: _selectedDriverId,
                   items: _drivers
-                      .map((d) => DropdownMenuItem(
-                            value: d.id,
-                            child: Text(d.name),
-                          ))
+                      .map(
+                        (d) =>
+                            DropdownMenuItem(value: d.id, child: Text(d.name)),
+                      )
                       .toList(),
                   onChanged: (v) => setState(() => _selectedDriverId = v),
                 ),
-
               const Divider(height: 32),
-              const Text('Charges',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                'Charges',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
               InputField(
                 label: 'Toll',
                 controller: _tollCtrl,
@@ -257,13 +264,21 @@ class _TripFormScreenState extends State<TripFormScreen> {
               // Advance section (only in edit mode)
               if (_existing != null) ...[
                 const Divider(height: 32),
-                const Text('Advances',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                ..._advances.map((a) => ListTile(
-                      dense: true,
-                      title: Text('₹${a.amount.toStringAsFixed(0)} (${a.advanceType})'),
-                      subtitle: Text(a.date),
-                    )),
+                Text(
+                  'Advances',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                ..._advances.map(
+                  (a) => ListTile(
+                    dense: true,
+                    title: Text(
+                      '₹${a.amount.toStringAsFixed(0)} (${a.advanceType})',
+                    ),
+                    subtitle: Text(a.date),
+                  ),
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -277,7 +292,10 @@ class _TripFormScreenState extends State<TripFormScreen> {
                     DropdownButton<String>(
                       value: _advanceType,
                       items: const [
-                        DropdownMenuItem(value: 'booking', child: Text('Booking')),
+                        DropdownMenuItem(
+                          value: 'booking',
+                          child: Text('Booking'),
+                        ),
                         DropdownMenuItem(value: 'fuel', child: Text('Fuel')),
                       ],
                       onChanged: (v) => setState(() => _advanceType = v!),

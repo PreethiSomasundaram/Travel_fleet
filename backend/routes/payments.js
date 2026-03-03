@@ -20,16 +20,14 @@ router.get('/', auth, async (req, res) => {
 // ── POST /api/payments ──────────────────────────────────────────────────────
 router.post('/', auth, requireRole('owner', 'employee'), async (req, res) => {
   try {
-    const payment = await Payment.create(req.body);
-
-    // ── update bill balance ───────────────────────────────────────────────
+    const payment = await Payment.create(req.body);    // ── update bill payable amount ───────────────────────────────────────
     if (payment.billId) {
       const bill = await Bill.findById(payment.billId);
       if (bill) {
         const allPayments = await Payment.find({ billId: bill._id.toString() });
         const totalPaid = allPayments.reduce((s, p) => s + p.amount, 0);
-        bill.balanceAmount = bill.totalBill - bill.advanceAmount - totalPaid;
-        bill.status = bill.balanceAmount <= 0 ? 'paid' : 'partial';
+        bill.payableAmount = bill.totalAmount - bill.advanceAmount - totalPaid;
+        if (bill.payableAmount < 0) bill.payableAmount = 0;
         await bill.save();
       }
     }
@@ -43,14 +41,13 @@ router.post('/', auth, requireRole('owner', 'employee'), async (req, res) => {
 // ── DELETE /api/payments/:id ────────────────────────────────────────────────
 router.delete('/:id', auth, requireRole('owner'), async (req, res) => {
   try {
-    const payment = await Payment.findByIdAndDelete(req.params.id);
-    if (payment && payment.billId) {
+    const payment = await Payment.findByIdAndDelete(req.params.id);    if (payment && payment.billId) {
       const bill = await Bill.findById(payment.billId);
       if (bill) {
         const allPayments = await Payment.find({ billId: bill._id.toString() });
         const totalPaid = allPayments.reduce((s, p) => s + p.amount, 0);
-        bill.balanceAmount = bill.totalBill - bill.advanceAmount - totalPaid;
-        bill.status = bill.balanceAmount <= 0 ? 'paid' : bill.balanceAmount < bill.totalBill ? 'partial' : 'unpaid';
+        bill.payableAmount = bill.totalAmount - bill.advanceAmount - totalPaid;
+        if (bill.payableAmount < 0) bill.payableAmount = 0;
         await bill.save();
       }
     }

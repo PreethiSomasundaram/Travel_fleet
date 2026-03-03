@@ -30,32 +30,54 @@ class _TripListScreenState extends State<TripListScreen> {
     });
   }
 
-  Color _statusColor(String s) {
+  Color _statusColor(String s, ColorScheme cs) {
     switch (s) {
       case 'started':
-        return Colors.blue;
+        return cs.primary;
       case 'ended':
-        return Colors.green;
+        return cs.tertiary;
       default:
-        return Colors.grey;
+        return cs.onSurface.withOpacity(0.4);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Trips')),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () =>
-            Navigator.pushNamed(context, AppRoutes.tripForm).then((_) => _load()),
+        onPressed: () => Navigator.pushNamed(
+          context,
+          AppRoutes.tripForm,
+        ).then((_) => _load()),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _load,
               child: _trips.isEmpty
-                  ? const Center(child: Text('No trips yet'))
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.map_outlined,
+                            size: 64,
+                            color: cs.onSurface.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No trips yet',
+                            style: TextStyle(
+                              color: cs.onSurface.withOpacity(0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: _trips.length,
@@ -64,7 +86,7 @@ class _TripListScreenState extends State<TripListScreen> {
                         return Card(
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: _statusColor(trip.status),
+                              backgroundColor: _statusColor(trip.status, cs),
                               child: Text(
                                 trip.status[0].toUpperCase(),
                                 style: const TextStyle(color: Colors.white),
@@ -78,7 +100,10 @@ class _TripListScreenState extends State<TripListScreen> {
                             isThreeLine: true,
                             trailing: trip.status == 'ended'
                                 ? IconButton(
-                                    icon: const Icon(Icons.receipt_long),
+                                    icon: Icon(
+                                      Icons.receipt_long,
+                                      color: cs.secondary,
+                                    ),
                                     tooltip: 'Generate Bill',
                                     onPressed: () => Navigator.pushNamed(
                                       context,

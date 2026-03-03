@@ -55,12 +55,14 @@ class _DriverPayrollScreenState extends State<DriverPayrollScreen> {
         }
       }
 
-      summaries.add(_DriverSummary(
-        driver: driver,
-        totalTrips: endedTrips.length,
-        totalDays: totalDays,
-        totalBata: totalBata,
-      ));
+      summaries.add(
+        _DriverSummary(
+          driver: driver,
+          totalTrips: endedTrips.length,
+          totalDays: totalDays,
+          totalBata: totalBata,
+        ),
+      );
     }
 
     setState(() {
@@ -71,57 +73,89 @@ class _DriverPayrollScreenState extends State<DriverPayrollScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Driver Payroll')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _summaries.isEmpty
-              ? const Center(child: Text('No drivers found'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(12),
-                  itemCount: _summaries.length,
-                  itemBuilder: (context, i) {
-                    final s = _summaries[i];
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    size: 64,
+                    color: cs.onSurface.withOpacity(0.3),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'No drivers found',
+                    style: TextStyle(color: cs.onSurface.withOpacity(0.5)),
+                  ),
+                ],
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _summaries.length,
+              itemBuilder: (context, i) {
+                final s = _summaries[i];
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          s.driver.name,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Phone: ${s.driver.phone}',
+                          style: TextStyle(
+                            color: cs.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                        const Divider(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Text(
-                              s.driver.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text('Phone: ${s.driver.phone}',
-                                style: const TextStyle(color: Colors.grey)),
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                _stat('Trips', '${s.totalTrips}'),
-                                _stat('Days', '${s.totalDays}'),
-                                _stat('Bata', '₹${s.totalBata.toStringAsFixed(0)}'),
-                              ],
+                            _stat(context, 'Trips', '${s.totalTrips}'),
+                            _stat(context, 'Days', '${s.totalDays}'),
+                            _stat(
+                              context,
+                              'Bata',
+                              '₹${s.totalBata.toStringAsFixed(0)}',
                             ),
                           ],
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 
-  Widget _stat(String label, String value) => Column(
-    children: [
-      Text(value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-      Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-    ],
-  );
+  Widget _stat(BuildContext context, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          label,
+          style: TextStyle(color: cs.onSurface.withOpacity(0.5), fontSize: 12),
+        ),
+      ],
+    );
+  }
 }
 
 class _DriverSummary {

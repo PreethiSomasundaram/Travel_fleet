@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/routes.dart';
-import '../../core/theme.dart';
 import '../../models/user_model.dart';
 import '../../services/trip_service.dart';
 import '../../services/user_service.dart';
-import '../../widgets/summary_tile.dart';
+import '../../widgets/enhanced_card.dart';
 
 /// Employee dashboard – can add bookings, assign car/driver, enter advances.
 class EmployeeDashboard extends StatefulWidget {
@@ -36,6 +35,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
   @override
   Widget build(BuildContext context) {
     final user = ModalRoute.of(context)?.settings.arguments as UserModel?;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -57,51 +57,64 @@ class _EmployeeDashboardState extends State<EmployeeDashboard> {
           : RefreshIndicator(
               onRefresh: _loadData,
               child: ListView(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 children: [
-                  if (user != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        'Welcome, ${user.name}',
-                        style: AppTheme.heading,
+                  if (user != null) ...[
+                    Text(
+                      'Welcome, ${user.name}',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Manage trips, cars and billing',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurface.withOpacity(0.6),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                  ],
                   GridView.count(
                     crossAxisCount: 2,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: 1.3,
+                    childAspectRatio: 1.1,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
                     children: [
-                      SummaryTile(
-                        label: 'Total Trips',
+                      EnhancedCard(
+                        title: 'Total Trips',
                         value: '$_tripCount',
-                        icon: Icons.map,
-                        color: Colors.green,
+                        icon: Icons.map_outlined,
+                        backgroundColor: cs.tertiary.withOpacity(0.1),
                         onTap: () =>
                             Navigator.pushNamed(context, AppRoutes.tripList),
                       ),
-                      SummaryTile(
-                        label: 'New Booking',
+                      EnhancedCard(
+                        title: 'New Booking',
                         value: '+',
                         icon: Icons.add_circle_outline,
-                        color: Colors.blue,
+                        backgroundColor: cs.primary.withOpacity(0.1),
                         onTap: () =>
                             Navigator.pushNamed(context, AppRoutes.tripForm),
                       ),
-                      SummaryTile(
-                        label: 'Cars',
+                      EnhancedCard(
+                        title: 'Cars',
                         value: '→',
-                        icon: Icons.directions_car,
-                        color: Colors.teal,
-                        onTap: () =>
-                            Navigator.pushNamed(context, AppRoutes.carDashboard),
+                        icon: Icons.directions_car_outlined,
+                        backgroundColor: cs.secondary.withOpacity(0.1),
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.carDashboard,
+                        ),
                       ),
-                      SummaryTile(
-                        label: 'Billing',
+                      EnhancedCard(
+                        title: 'Billing',
                         value: '→',
-                        icon: Icons.receipt_long,
-                        color: Colors.orange,
+                        icon: Icons.receipt_long_outlined,
+                        backgroundColor: const Color(
+                          0xFFF59E0B,
+                        ).withOpacity(0.1),
                         onTap: () =>
                             Navigator.pushNamed(context, AppRoutes.billing),
                       ),
