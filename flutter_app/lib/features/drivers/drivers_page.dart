@@ -236,7 +236,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                   ),
                   if (role == 'owner') ...[
                     const SizedBox(height: 16),
-                    Divider(color: theme.colorScheme.onSurfaceVariant.withOpacity(0.2)),
+                    Divider(color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.2)),
                     const SizedBox(height: 12),
                     Text(
                       'Optional: Create Login for Driver',
@@ -351,7 +351,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                       _InfoChip(
                         icon: Icons.access_time,
                         label: 'Hours',
-                        value: '${d.totalWorkingHours.toStringAsFixed(1)}',
+                        value: d.totalWorkingHours.toStringAsFixed(1),
                       ),
                       _InfoChip(
                         icon: Icons.trending_up,
@@ -365,7 +365,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -405,7 +405,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
           if (role == 'owner') ...[
             const SizedBox(height: 24),
             Text(
@@ -476,7 +476,7 @@ class _DriversPageState extends ConsumerState<DriversPage> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ],
       ),
@@ -501,7 +501,7 @@ class _InfoChip extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

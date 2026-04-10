@@ -118,7 +118,7 @@ class _EmployeeDashboardPageState extends ConsumerState<EmployeeDashboardPage> {
                         gradient: LinearGradient(
                           colors: [
                             Colors.cyan,
-                            Colors.cyan.withOpacity(0.7),
+                            Colors.cyan.withValues(alpha: 0.7),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -183,7 +183,7 @@ class _EmployeeDashboardPageState extends ConsumerState<EmployeeDashboardPage> {
                             ),
                             selected: isSelected,
                             selectedTileColor:
-                                Colors.cyan.withOpacity(0.1),
+                                Colors.cyan.withValues(alpha: 0.1),
                             onTap: () {
                               setState(() => _index = i);
                               Navigator.pop(context);
